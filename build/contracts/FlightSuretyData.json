@@ -23009,18 +23009,112 @@
         }
       },
       "links": {},
-      "address": "0x3b394c4A5674c45B78F0B9B7bf12B8eaCd8F7422",
-      "transactionHash": "0x9559dd69177807f739def471c2e0ff1122c7353b79ff0e9a63abab478fe34811"
+      "address": "0x5D2C92BAF84a27f65E581a1738DF3076D243ab4D",
+      "transactionHash": "0xc41459a69b43b5024d39ce969f3066fcb7d6bb85a3a53204740a313d3a9fb4d9"
     },
     "5777": {
-      "events": {},
+      "events": {
+        "0xac78ffce05a964fd93df05896e78ca7d509ad473c8ac2aee9009a32a60afa951": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "account",
+              "type": "address"
+            }
+          ],
+          "name": "RegisterAirline",
+          "type": "event",
+          "signature": "0xac78ffce05a964fd93df05896e78ca7d509ad473c8ac2aee9009a32a60afa951"
+        },
+        "0x0366c69e79f8ad8a2a11f74187b5a274720fea8cd1ed2ed9b5ba4bde7ef392c8": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "account",
+              "type": "string"
+            }
+          ],
+          "name": "RegisterFlight",
+          "type": "event",
+          "signature": "0x0366c69e79f8ad8a2a11f74187b5a274720fea8cd1ed2ed9b5ba4bde7ef392c8"
+        },
+        "0x8afeca650897be3183b7c0d24eba96a1b990f75c4bd74a0cfb2c0a71aec48e61": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "caller",
+              "type": "address"
+            }
+          ],
+          "name": "AuthorizedCaller",
+          "type": "event",
+          "signature": "0x8afeca650897be3183b7c0d24eba96a1b990f75c4bd74a0cfb2c0a71aec48e61"
+        },
+        "0x9e8ca6ff03906e81e8a6a03d4f96b7edb0b97f0ed9d07ef1b699fff634385496": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "caller",
+              "type": "address"
+            }
+          ],
+          "name": "DeAuthorizedCaller",
+          "type": "event",
+          "signature": "0x9e8ca6ff03906e81e8a6a03d4f96b7edb0b97f0ed9d07ef1b699fff634385496"
+        },
+        "0x119d729c105f41a1ae53093243b5cfacf6d8dc260fc7ada25734e0142dd0e151": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "passenger",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "flight",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "CreditInsured",
+          "type": "event",
+          "signature": "0x119d729c105f41a1ae53093243b5cfacf6d8dc260fc7ada25734e0142dd0e151"
+        },
+        "0x5c486528ec3e3f0ea91181cff8116f02bfa350e03b8b6f12e00765adbb5af85c": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "oldOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "TransferOwnership",
+          "type": "event",
+          "signature": "0x5c486528ec3e3f0ea91181cff8116f02bfa350e03b8b6f12e00765adbb5af85c"
+        }
+      },
       "links": {},
-      "address": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da",
-      "transactionHash": "0x93901a6ab81208664b9a6b6949108fcf9e438de24a404e57341b09ac5b7d03c6"
+      "address": "0x30753E4A8aad7F8597332E813735Def5dD395028",
+      "transactionHash": "0xa9ea197c611ae0117fc1ecc4060849720f7c8afe9348c83360a6f9bb50e4d722"
     }
   },
   "schemaVersion": "3.0.1",
-  "updatedAt": "2019-02-28T23:39:30.228Z",
+  "updatedAt": "2019-03-01T20:54:45.287Z",
   "devdoc": {
     "methods": {
       "buy(address,string)": {

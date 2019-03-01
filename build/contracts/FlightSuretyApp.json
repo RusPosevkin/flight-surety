@@ -20176,18 +20176,18 @@
     "4447": {
       "events": {},
       "links": {},
-      "address": "0xb544f02e68Fc2F6A5aB7Fc709906F581F72a9b78",
-      "transactionHash": "0xcb82cb95d2d83220efe25c3422bd56d39653fae805063ab2140293fa0cd6ff8e"
+      "address": "0x08BcefDC4b2Ed4ef6B1183471F432400E266191f",
+      "transactionHash": "0x1544feb5e176eb346ec97d2b7fb9c6fd8f30d86ec53be35465c8ef2d7894566d"
     },
     "5777": {
       "events": {},
       "links": {},
-      "address": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10",
-      "transactionHash": "0xa659cae3bfc47835bd8982993d9908cd803dc0c02eb406ab036a4b68e5ea8d64"
+      "address": "0xFB88dE099e13c3ED21F80a7a1E49f8CAEcF10df6",
+      "transactionHash": "0x93089470ea1eb97a3d2168dce996923f3071f08f97a6aeaf6905484ff679fc93"
     }
   },
   "schemaVersion": "3.0.1",
-  "updatedAt": "2019-02-28T23:39:30.021Z",
+  "updatedAt": "2019-03-01T20:54:45.270Z",
   "devdoc": {
     "methods": {
       "registerFlight()": {
