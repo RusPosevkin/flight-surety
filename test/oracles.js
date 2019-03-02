@@ -31,6 +31,18 @@ contract('Oracles', async (accounts) => {
       let result = await config.flightSuretyApp.getMyIndexes.call({from: accounts[a]});
       console.log(`Oracle Registered: ${result[0]}, ${result[1]}, ${result[2]}`);
     }
+    
+    for(let a = 1; a < 10; a++) {      
+      await config.flightSuretyApp.registerOracle({ from: accounts[a], value: fee });
+      let result = await config.flightSuretyApp.getMyIndexes.call({from: accounts[a]});
+      console.log(`Oracle Registered: ${result[0]}, ${result[1]}, ${result[2]}`);
+    }
+
+    for(let a = 1; a < 10; a++) {      
+      await config.flightSuretyApp.registerOracle({ from: accounts[a], value: fee });
+      let result = await config.flightSuretyApp.getMyIndexes.call({from: accounts[a]});
+      console.log(`Oracle Registered: ${result[0]}, ${result[1]}, ${result[2]}`);
+    }
   });
 
   it('can request flight status', async () => {
