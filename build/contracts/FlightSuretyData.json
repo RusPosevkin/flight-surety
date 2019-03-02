@@ -23109,12 +23109,12 @@
         }
       },
       "links": {},
-      "address": "0x5F851c41999691455d46E5bE1B08ab6FC67083f5",
-      "transactionHash": "0x63d61deca352e45bb196d18f02c93200aefb704e830281084c4b17b2ba3dc25c"
+      "address": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da",
+      "transactionHash": "0x1a46c022e421bad38c0ebb69413ba5547a6eb6af6ffd2b81a51e003f94640fa6"
     }
   },
   "schemaVersion": "3.0.1",
-  "updatedAt": "2019-03-01T21:35:58.771Z",
+  "updatedAt": "2019-03-02T11:46:03.129Z",
   "devdoc": {
     "methods": {
       "buy(address,string)": {
