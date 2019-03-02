@@ -23009,8 +23009,8 @@
         }
       },
       "links": {},
-      "address": "0x5D2C92BAF84a27f65E581a1738DF3076D243ab4D",
-      "transactionHash": "0xc41459a69b43b5024d39ce969f3066fcb7d6bb85a3a53204740a313d3a9fb4d9"
+      "address": "0x35BaD90bcA466923E26A25a703EF63c3E20fBa30",
+      "transactionHash": "0x31569f4ceb7bd0791cda7fd9fd8efc0980329feafe4c378f693083044bb3dff9"
     },
     "5777": {
       "events": {
@@ -23109,12 +23109,12 @@
         }
       },
       "links": {},
-      "address": "0x30753E4A8aad7F8597332E813735Def5dD395028",
-      "transactionHash": "0xa9ea197c611ae0117fc1ecc4060849720f7c8afe9348c83360a6f9bb50e4d722"
+      "address": "0x5F851c41999691455d46E5bE1B08ab6FC67083f5",
+      "transactionHash": "0x63d61deca352e45bb196d18f02c93200aefb704e830281084c4b17b2ba3dc25c"
     }
   },
   "schemaVersion": "3.0.1",
-  "updatedAt": "2019-03-01T20:54:45.287Z",
+  "updatedAt": "2019-03-01T21:35:58.771Z",
   "devdoc": {
     "methods": {
       "buy(address,string)": {
