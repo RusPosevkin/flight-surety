@@ -52,6 +52,11 @@ contract('Oracles', async (accounts) => {
     let timestamp = Math.floor(Date.now() / 1000);
 
     // Submit a request for oracles to get status information for a flight
+    // await config.flightSuretyApp.activateAirline(config.firstAirline);
+    await config.flightSuretyApp.activateAirline.sendTransaction(config.firstAirline, {
+      from: config.firstAirline,
+      value: config.weiMultiple * 10
+    });
     await config.flightSuretyApp.fetchFlightStatus(config.firstAirline, flight, timestamp);
     // ACT
 

@@ -4,6 +4,12 @@ import Config from './config.json';
 import Web3 from 'web3';
 import express from 'express';
 
+let config = Config['localhost'];
+let web3 = new Web3(new Web3.providers.WebsocketProvider(config.url.replace('http', 'ws')));
+web3.eth.defaultAccount = web3.eth.accounts[0];
+let flightSuretyApp = new web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
+let flightSuretyData = new web3.eth.Contract(FlightSuretyData.abi, config.dataAddress);
+
 let STATUS_CODES = [{
   label: 'STATUS_CODE_UNKNOWN',
   code: 0
@@ -24,177 +30,143 @@ let STATUS_CODES = [{
   code: 50
 }];
 
-let config = Config['localhost'];
-let web3 = new Web3(new Web3.providers.WebsocketProvider(config.url.replace('http', 'ws')));
-web3.eth.defaultAccount = web3.eth.accounts[0];
-let flightSuretyApp = new web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
-let flightSuretyData = new web3.eth.Contract(FlightSuretyData.abi, config.dataAddress);
-
-
-function authorizeCaller(caller) {
-  return new Promise((resolve, reject) => {
-      flightSuretyData.methods.authorizeCaller(config.appAddress).send({
-          from: caller
-      }).then(result => {
-          console.log(result ? `Caller: ${caller} is authorized` : `Caller: ${caller} is not authorized`);
-          return (result ? resolve : reject)(result);
-      }).catch(err => {
-          reject(err);
-      });
-  })
-
+function getRandomIntFromInterval(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 function initAccounts() {
-  return new Promise((resolve, reject) => {
-
-      web3.eth.getAccounts().then(accounts => {
-          web3.eth.defaultAccount = accounts[0];
-          authorizeCaller(
-              accounts[0]
-          ).then(result => {
-              flightSuretyApp.methods.fund(accounts[0]).send({
-                  from: accounts[0],
-                  "value": 10,
-                  "gas": 4712388,
-                  "gasPrice": 100000000000
-              }).then(() => {
-                  initREST();
-                  console.log("funds added");
-
-              }).catch(err => {
-
-                  console.log("Error funding the first account");
-                  console.log(err.message);
-              }).then(() => {
-                  resolve(accounts);
-
-              });
-
-          }).catch(err => {
-              console.log(err.message);
-              reject(err);
-          });
-
-      }).catch(err => {
-          reject(err);
-      });
-  });
+    return new Promise((resolve, reject) => {
+        web3.eth.getAccounts().then(accounts => {
+            web3.eth.defaultAccount = accounts[0];
+            flightSuretyApp.methods.activateAirline(accounts[1]).send({
+                from: accounts[1],
+                value: "10000000000000000000",
+                gas: 4712388,
+                gasPrice: 100000000000
+            }).then(() => {
+                initREST();
+                console.log("First Airline is funded now");
+            }).catch(err => {
+                console.log(err.message);
+            }).then(() => {
+                resolve(accounts);
+            });
+        }).catch(err => {
+            reject(err);
+        });
+    });
 }
 
 function initOracles(accounts) {
-  return new Promise((resolve, reject) => {
-      let rounds = accounts.length;
-      let oracles = [];
-      flightSuretyApp.methods.REGISTRATION_FEE().call().then(fee => {
-          accounts.forEach(account => {
-              flightSuretyApp.methods.registerOracle().send({
-                  "from": account,
-                  "value": fee,
-                  "gas": 4712388,
-                  "gasPrice": 100000000000
-              }).then(() => {
-                  flightSuretyApp.methods.getMyIndexes().call({
-                      "from": account
-                  }).then(result => {
-                      oracles.push(result);
-                      console.log(`Oracle Registered: ${result[0]}, ${result[1]}, ${result[2]} at ${account}`);
-                      rounds -= 1;
-                      if (!rounds) {
-                          resolve(oracles);
-                      }
-                  }).catch(err => {
-                      reject(err);
-                  });
-              }).catch(err => {
-                  reject(err);
-              });
-          });
-      }).catch(err => {
-          reject(err);
-      });
-  });
+    return new Promise((resolve, reject) => {
+        let rounds = accounts.length;
+        let oracles = [];
+        flightSuretyApp.methods.REGISTRATION_FEE().call().then(fee => {
+            accounts.forEach(account => {
+                flightSuretyApp.methods.registerOracle().send({
+                    from: account,
+                    value: fee,
+                    gas: 4712388,
+                    gasPrice: 100000000000
+                }).then(() => {
+                    flightSuretyApp.methods.getMyIndexes().call({
+                        from: account
+                    }).then(result => {
+                        oracles.push(result);
+                        console.log(`Oracle Registered: ${result[0]}, ${result[1]}, ${result[2]} at ${account}`);
+                        rounds -= 1;
+                        if (!rounds) {
+                            resolve(oracles);
+                        }
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        }).catch(err => {
+            reject(err);
+        });
+    });
 }
 
 initAccounts().then(accounts => {
-  initOracles(accounts).then(oracles => {
-      flightSuretyApp.events.OracleRequest({
-          fromBlock: "latest"
-      }, function (error, event) {
-          if (error) {
-              console.error(error)
-          }
-          let airline = event.returnValues.airline;
-          let flight = event.returnValues.flight;
-          let timestamp = event.returnValues.timestamp;
-          let found = false;
+    initREST();
+    initOracles(accounts).then(oracles => {
+        flightSuretyData.events.insurancePurchased({
+            fromBlock: "latest"
+        }, function (error, result) {
+            if (error) {
+                console.log(error)
+            }
 
-          let selectedCode = STATUS_CODES[1];
-          let scheduledTime = (timestamp * 1000);
-          console.log(`Flight scheduled to: ${new Date(scheduledTime)}`);
-          if (scheduledTime < Date.now()) {
-              selectedCode = STATUS_CODES[2];
-          }
+            let airline = result.returnValues.airline;
+            let flight = result.returnValues.flight;
+            let timestamp = result.returnValues.timestamp;
+            let insuranceAmount = result.returnValues.insuranceAmount;
+            let passenger = result.returnValues.senderAddress;
+            let scheduledTime = (timestamp * 1000);
+            console.log(`Insurance purchased by ${passenger} at ${insuranceAmount} WEI for flight ${flight} of airline ${airline} scheduled at ${new Date(scheduledTime)}`);
+            let selectedCode = STATUS_CODES[1];
+            if (scheduledTime < Date.now()) {
+                // selectedCode = STATUS_CODES[getRandomIntFromInterval(0, STATUS_CODES.length - 1)];
+                selectedCode = STATUS_CODES[2];
+            }
 
-          oracles.forEach((oracle, index) => {
-              if (found) {
-                  return false;
-              }
-              for(let idx = 0; idx < 3; idx += 1) {
-                  if (found) {
-                      break;
-                  }
-                  if (selectedCode.code === 20) {
-                      console.log("WILL COVER USERS");
-                      flightSuretyApp.methods.creditInsurees(
-                          accounts[index],
-                          flight
-                      ).send({
-                          from: accounts[index]
-                      }).then(result => {
-                          console.log(result);
-                          console.log(`Flight ${flight} got covered and insured the users`);
-                      }).catch(err => {
-                          console.log(err.message);
-                      });
-                  }
-                  flightSuretyApp.methods.submitOracleResponse(
-                      oracle[idx], airline, flight, timestamp, selectedCode.code
-                  ).send({
-                      from: accounts[index]
-                  }).then(result => {
-                      found = true;
-                      console.log(`Oracle: ${oracle[idx]} responded from flight ${flight} with status ${selectedCode.code} - ${selectedCode.label}`);
-                  }).catch(err => {
-                      console.log(err.message);
-                  });
-              }
-          });
-      });
-  }).catch(err => {
-      console.error(err.message);
-  });
+            let isOracleResponseSubmitted = false;
+            oracles.forEach((oracle, index) => {
+                if(!isOracleResponseSubmitted) {
+                    for(let i = 0; i < 3; i += 1) {
+                        if(isOracleResponseSubmitted) {
+                            break;
+                        }
+                        if (i === 0 && selectedCode.code === 20) {
+                            console.log("Flight gets delayed by the airline. We will now claim the insurance amount.");
+                            flightSuretyApp.methods.claimInsuranceAmount(airline, flight, timestamp, accounts[index]).send({
+                                from: accounts[index]
+                            }).then(result => {
+                                console.log(`Insurance claimed for Flight ${flight} and insured amount is credited to your wallet. You can withdraw this amount.`);
+                            }).catch(err => {
+                                console.log(err.message);
+                            });
+                        }
+                        flightSuretyApp.methods.submitOracleResponse(oracle[i], airline, flight, timestamp, selectedCode.code).send({
+                            from: accounts[index]
+                        }).then(result => {
+                            isOracleResponseSubmitted = true;
+                            console.log(`Oracle: ${oracle[i]} responded for flight ${flight} with status ${selectedCode.code} - ${selectedCode.label}`);
+                        }).catch(err => {
+
+                        });
+                    }
+                }
+            });
+        });
+    }).catch(err => {
+        console.log(err.message);
+    });
 }).catch(err => {
-  console.error(err.message);
+    console.log(err.message);
 });
 
-function initREST() {
-  app.get('/api', (req, res) => {
-      res.send({
-          message: 'An API for use with your Dapp!'
-      });
-  });
-
-  app.get("/activeAirlines", (req, res)  => {
-      flightSuretyApp.methods.getActiveAirlines().call().then(airlines => {
-          console.log(airlines);
-          return res.status(200).send(airlines);
-      }).catch(err => {
-          return res.status(500).send(err);
-      });
-  });
-};
-
 const app = express();
+
+function initREST() {
+    app.get('/api', (req, res) => {
+        res.send({
+            message: 'An API for use with your Dapp!'
+        });
+    });
+
+    app.get("/activeAirlines", (req, res)  => {
+        flightSuretyApp.methods.getActiveAirlines().call().then(airlines => {
+            console.log(airlines);
+            return res.status(200).send(airlines);
+        }).catch(err => {
+            return res.status(500).send(err);
+        });
+    });
+}
 
 export default app;
