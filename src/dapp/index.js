@@ -35,69 +35,123 @@ import './flightsurety.css';
         });
 
 
-        contract.flightSuretyApp.events.FlightStatusInfo({
+        contract.flightSuretyData.events.amountWithdrawn({
             fromBlock: 'latest'
         }, function (error, result) {
             if (error) {
                 console.log(error)
             } else {
-                let els = document.querySelectorAll(`.${ btoa(result.returnValues.timestamp + result.returnValues.flight)}`);
-                console.log(els[els.length - 1]);
-                els[els.length - 1].querySelector('.results').innerText = result.returnValues.status === '10' ? '10 - On time' : `${result.returnValues.status} - ${STATUS_CODES.find(code => code.code == result.returnValues.status).label}`;
+                display('Withdraw Amount', 'Withdraw amount to wallet', [ { label: 'Amount withdrawn', error: error, value: `Amount ${result.returnValues.amount} withdrawn to ${result.returnValues.senderAddress} at ${new Date()}`} ]);
             }
         });
 
-
-        contract.flightSuretyData.events.CreditInsured({
+        contract.flightSuretyData.events.airlineFunded({
             fromBlock: 'latest'
         }, function (error, result) {
             if (error) {
                 console.log(error)
             } else {
-                alert(`Account ${result.returnValues.passenger} got refunded ${result.returnValues.amount} regarding flight ${result.returnValues.flight}`);
+                display('Airline Funded', 'Airline funded by the Airline', [ { label: 'Airline Funded', error: error, value: `Airline ${result.returnValues.airlineAddress} got funded`} ]);
             }
         });
+
+        contract.flightSuretyData.events.insuranceClaimed({
+            fromBlock: 'latest'
+        }, function (error, result) {
+            if (error) {
+                console.log(error)
+            } else {
+                display('Claim Insurance', 'Insurance claimed by passenger', [ { label: 'Insurance Claimed', error: error, value: `Insurance claimed by ${result.returnValues.passenger}. An amount of ${result.returnValues.amountCreditedToPassenger} WEI has been added to his wallet for ${result.returnValues.flight} at ${new Date(result.returnValues.timestamp * 1000)}`} ]);
+            }
+        });
+
 
         DOM.elid('submit-oracle').addEventListener('click', () => {
-            let flight = JSON.parse(document.querySelector('#flights-selector').value);
+            const flight = DOM.elid('flight-number').value;
+            DOM.elid('flight-number').value = '';
 
             contract.fetchFlightStatus(flight, (error, result) => {
-                display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + `Requested at ${new Date().toLocaleString()}`} ], btoa(result.timestamp + result.flight));
+                let selectFlight = DOM.elid('selectFlight');
+                addFlightSection(result, selectFlight);
+                display('Oracles', 'Trigger oracles', [ {
+                    label: 'Fetch Flight Status -->',
+                    error, 
+                    value: `Flight ${result.flight} scheduled at ${new Date(result.timestamp * 1000)}`
+                } ]);
             });
         });
 
         DOM.elid('buyInsurance').addEventListener('click', () => {
-            let flight = JSON.parse(document.querySelector('#flights-selector').value);
+            const selectedFlightElement = document.getElementById("selectFlight");
+            let selectedFlightValue = selectedFlightElement.options[selectedFlightElement.selectedIndex].value;
+            let insuranceAmount = DOM.elid('insuranceAmount').value;
 
-            contract.buy({
-                'flight': flight.flight
-            }, (error, result) => {
-                alert(error || result);
+            if (!insuranceAmount) {
+                alert('You should enter amount of insurance');
+                return;
+            }
+            
+            if(selectedFlightValue === 'Select') {
+                alert('You should select your flight and time of departure');
+            } else {
+                DOM.elid('insuranceAmount').value = '';
+                selectedFlightValue = JSON.parse(selectedFlightValue);
+
+                contract.buyInsurance(selectedFlightValue, insuranceAmount, (error, result) => {
+                    if (error) {
+                        alert(error);
+                    }
+                    let value = DOM.div({className: 'col-sm-8 field-value'});
+                    value.innerHTML = [
+                        '<div>' + `Passenger --> ${result.passenger}` + '</div>',
+                        '<div>' + `Amount --> ${result.insuranceAmount} ETH` + '</div>',
+                        '<div>' + `Flight --> ${result.flight}` + '</div>',
+                        '<div>' + `Airline --> ${result.airline}` + '</div>',
+                        '<div>' + `Schedule --> ${new Date(result.timestamp * 1000)}` + '</div>',
+                    ].join('');
+                    display('Buy Insurance', 'Insurance purchased by the passenger', [{
+                        label: 'Insurance Purchased -->',
+                        error,
+                        value
+                    }], true);
+                });
+            }
+        });
+
+        DOM.elid('withdrawFund').addEventListener('click', () => {
+            const address = DOM.elid('withdrawalAddress').value;
+
+            contract.withdrawAmount(address, (error, result) => {
+                error && alert(error);
             });
         });
-    
     });
 })();
 
-function displayList(flight, parentEl) {
-    console.log(flight);
-    console.log(parentEl);
-    let el = document.createElement('option');
-    el.text = `${flight.flight} - ${new Date((flight.timestamp))}`;
-    el.value = JSON.stringify(flight);
-    parentEl.add(el);
+function addFlightSection(flight, selectComponent) {
+    const option = document.createElement('option');
+    option.text =  `Flight ${flight.flight} scheduled at ${new Date(flight.timestamp)}`;
+    option.value = JSON.stringify(flight);
+
+    selectComponent.add(option);
 }
 
-function display(title, description, results, customClass = null) {
+function display(title, description, results, isDomNode) {
     let displayDiv = DOM.elid('display-wrapper');
     let section = DOM.section();
+
     section.appendChild(DOM.h2(title));
     section.appendChild(DOM.h5(description));
+
     results.map((result) => {
-        let row = section.appendChild(DOM.div({className:'row ' + customClass}));
-        row.appendChild(DOM.div({className: 'col-sm-3 field'}, result.label));
-        row.appendChild(DOM.div({className: 'col-sm-7 field-value'}, result.error ? String(result.error) : String(result.value)));
-        row.appendChild(DOM.div({className: 'col-sm-2 results'}, customClass ? 'Fetching status' : ''));
+        let row = section.appendChild(DOM.div({ className:'row' }));
+        row.appendChild(DOM.div({className: 'col-sm-4 field'}, result.label));
+        if (isDomNode && !result.error) {
+            row.appendChild(result.value);
+        } else {
+            row.appendChild(DOM.div({className: 'col-sm-8 field-value'}, result.error ? String(result.error) : String(result.value)));
+
+        }
         section.appendChild(row);
     });
     displayDiv.append(section);

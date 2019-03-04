@@ -24,24 +24,24 @@
         <div id="display-wrapper" class="top-20">
         </div>
         <div class="row top-20">
-            <label>
-                Flights
-                <select id="flights-selector">
-                </select>
-            </label>
-            <button style="margin-left: 7px" class="btn btn-primary" id="submit-oracle">Submit to Oracles</button>
-            <div style="flex: 1;">
-                <label style="display: flex; flex-direction: column">
-                    Amount (ether)
-                    <input style="margin-left: 7px" id="valueStep" type="number" min="0" max="1" step="0.1">
-                </label>
-                <button style="margin-left: 7px" class="btn btn-primary" id="buyInsurance">Buy Insurance</button>
+            <label class="form">Flight</label>
+            <input type="text" id="flight-number" placeholder="Flight Name">
+            <btn class="btn btn-primary" id="submit-oracle">Create</btn>
+        </div>
+        <div class="row top-20">
+            <label class="form">Buy Insurance</label>
+            <select id="selectFlight" class="selectFlight">
+                <option value="Select" selected>Select Flight and Departure Time</option>
+            </select>
+            <div>
+                <input type="number" id="insuranceAmount" class="insuranceAmount" placeholder="Insurance Amount (ETH)">
+                <btn class="btn btn-primary" id="buyInsurance">Purchase</btn>                
             </div>
-
-            <div style="display: none;">
-                <label  class="form">Flight</label> <input type="text" id="flight-number">
-
-            </div>
+        </div>
+        <div class="row top-20">
+            <label class="form">Address</label>
+            <input type="text" id="withdrawalAddress" class="withdrawalAddress" placeholder="Wallet address" value="0x2191eF87E392377ec08E7c08Eb105Ef5448eCED5">
+            <btn class="btn btn-primary" id="withdrawFund">Withdraw Fund</btn>
         </div>
     </main>
 
